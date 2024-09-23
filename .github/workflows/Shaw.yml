@@ -33,7 +33,7 @@ jobs:
              az login --service-principal --username ${{ secrets.REGISTRY_USERNAME1 }} --password ${{ secrets.REGISTRY_PASSWORD1 }} --tenant 3d993c04-128c-48de-ba4a-1afbb101cfa1
              az acr login --name ${{ secrets.REGISTRY_LOGIN_SERVER1 }}
              az aks get-credentials --resource-group Dev-AKS-Cluster_group --name Dev-AKS-Cluster --overwrite-existing
-             az aks update -n Dev-AKS-Cluster -g Dev-AKS-Cluster_group --attach-acr ${{ secrets.ACR_USERNAME }}
+             az aks update -n Dev-AKS-Cluster -g Dev-AKS-Cluster_group --attach-acr /subscriptions/a29ecd7c-4674-4d60-96e4-c526ca787cbb/resourceGroups/RG-CR/providers/Microsoft.ContainerRegistry/registries/KorContainer
              kubectl apply -f kubemanifest/deployment.yml -f kubemanifest/Service.yml 
              kubectl get pods
              kubectl get services
