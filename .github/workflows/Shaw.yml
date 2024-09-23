@@ -7,5 +7,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@main
       - run: |
-          docker build -t Korversion:1.0.0 Applicationcode1
+          docker build -t korversion:1.0.0 Applicationcode1
           
