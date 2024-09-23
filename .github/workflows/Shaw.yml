@@ -8,4 +8,4 @@ jobs:
         uses: actions/checkout@main
       - run: |
           docker build -t korversion:1.0.0 Applicationcode1
-          
+          docker images
