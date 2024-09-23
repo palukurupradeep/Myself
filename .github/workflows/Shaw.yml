@@ -9,3 +9,4 @@ jobs:
       - run: |
           docker build -t korversion:1.0.0 Applicationcode1
           docker images
+          docker login ${{ secrets.JFROG_URL1 }} --username ${{ secrets.JFROG_USERNAME }} --password ${{ secrets.JFROG_API1 }}
