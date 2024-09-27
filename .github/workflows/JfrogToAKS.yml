@@ -1,0 +1,14 @@
+name : Build and Push Docker image to ACR
+'on' : push
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@main
+      - run: |
+          docker build -t korversion:2.0.0 Applicationcode1
+          docker images
+          docker login ${{ secrets.JFROG_URL1 }} --username ${{ secrets.JFROG_USERNAME }} --password ${{ secrets.JFROG_API1 }}
+          docker tag korversion:2.0.0 asuuki.jfrog.io/pradeep-local/korversion:2.0.0
+          docker push asuuki.jfrog.io/pradeep-local/korversion:1.0.0
