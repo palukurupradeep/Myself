@@ -27,6 +27,6 @@ jobs:
         run: | 
              az login --service-principal --username ${{ secrets.REGISTRY_USERNAME1 }} --password ${{ secrets.REGISTRY_PASSWORD1 }} --tenant 3d993c04-128c-48de-ba4a-1afbb101cfa1
              az aks get-credentials --resource-group Dev-AKS-Cluster_group --name Dev-AKS-Cluster --overwrite-existing
-             kubectl apply -f kubemanifestfile/deployment.yml -f kubemanifestfile/Service.yml
+             kubectl apply -f kubemanifest/deployment.yml -f kubemanifest/Service.yml
              
              
