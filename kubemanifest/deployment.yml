@@ -9,13 +9,15 @@ spec: # Dictionary
       app: myapp3
   template:  
     metadata: # Dictionary
-      name: myapp3-pod
+      name: mynew-pod
       labels: # Dictionary
         app: myapp3  # Key value paids
     spec:
       containers: # List
-        - name: myapp3-container
-          image: korcontainer.azurecr.io/korversion:1.0.0
+        - name: mynew-container
+          image: asuuki.jfrog.io/pradeep-local/korversion:2.0.0
           ports: 
             - containerPort: 80  
+      imagePullSecrets:
+        - name: jfrog-mysecret     
     
