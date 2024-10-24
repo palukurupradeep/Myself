@@ -1,32 +1,91 @@
-name : Build and Push Docker image to AKS
-'on' : push
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@main
-      - run: |
-          docker build -t korversion:3.0.0 Applicationcode1
-          docker images
-          docker login ${{ secrets.JFROG_URL1 }} --username ${{ secrets.JFROG_USERNAME }} --password ${{ secrets.JFROG_API1 }}
-          docker tag korversion:3.0.0 asuuki.jfrog.io/pradeep-local/korversion:3.0.0
-          docker push asuuki.jfrog.io/pradeep-local/korversion:3.0.0
+# name : Build and Push Docker image to AKS
+# 'on' : push
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@main
+#       - run: |
+#           docker build -t korversion:3.0.0 Applicationcode1
+#           docker images
+#           docker login ${{ secrets.JFROG_URL1 }} --username ${{ secrets.JFROG_USERNAME }} --password ${{ secrets.JFROG_API1 }}
+#           docker tag korversion:3.0.0 asuuki.jfrog.io/pradeep-local/korversion:3.0.0
+#           docker push asuuki.jfrog.io/pradeep-local/korversion:3.0.0
           
-  deploy:
-    needs: build
+#   deploy:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@main  # Use stable version
+#       - name: Set up kubectl
+#         uses: azure/setup-kubectl@v1
+#         with:
+#           version: 'latest'  # Optionally specify the version you want
+#       - name: Deployment to AKS
+#         run: | 
+#              az login --service-principal --username ${{ secrets.REGISTRY_USERNAME1 }} --password ${{ secrets.REGISTRY_PASSWORD1 }} --tenant 3d993c04-128c-48de-ba4a-1afbb101cfa1
+#              az aks get-credentials --resource-group Dev-AKS-Cluster_group --name Dev-AKS-Cluster --overwrite-existing
+#              kubectl apply -f kubemanifest/deployment.yml -f kubemanifest/service.yml
+             
+             
+
+name: Jfrog image to AKS
+
+on:
+  push:
+    branches:
+      - main  # Specify the branch to trigger the workflow
+
+env:
+  IMAGE_NAME: korversion
+  IMAGE_TAG: 3.0.0
+  JFROG_REPO: pradeep-local
+
+jobs:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@main  # Use stable version
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v1
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to JFrog
+        uses: docker/login-action@v2
         with:
-          version: 'latest'  # Optionally specify the version you want
-      - name: Deployment to AKS
-        run: | 
-             az login --service-principal --username ${{ secrets.REGISTRY_USERNAME1 }} --password ${{ secrets.REGISTRY_PASSWORD1 }} --tenant 3d993c04-128c-48de-ba4a-1afbb101cfa1
-             az aks get-credentials --resource-group Dev-AKS-Cluster_group --name Dev-AKS-Cluster --overwrite-existing
-             kubectl apply -f kubemanifest/deployment.yml -f kubemanifest/service.yml
-             
-             
+          registry: ${{ secrets.JFROG_URL1 }}
+          username: ${{ secrets.JFROG_USERNAME }}
+          password: ${{ secrets.JFROG_API1 }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: Applicationcode1
+          push: true
+          tags: ${{ secrets.JFROG_URL1 }}/${{ env.JFROG_REPO }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+
+      - name: Get AKS credentials
+        run: az aks get-credentials --resource-group Dev-AKS-Cluster_group --name Dev-AKS-Cluster --overwrite-existing
+
+      - name: Deploy to AKS
+        run: |
+          kubectl apply -f kubemanifest/deployment.yml
+          kubectl apply -f kubemanifest/service.yml
